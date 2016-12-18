@@ -402,6 +402,7 @@ module type OPTIONS = sig
   val program_to_execute : bool ref
   val must_clean : bool ref
   val catch_errors : bool ref
+  val use_codept : bool ref
   val use_menhir : bool ref
   val show_documentation : bool ref
   val recursive : bool ref

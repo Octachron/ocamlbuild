@@ -417,6 +417,7 @@ rule "ocaml: cmxa & a -> cmxs & so"
         from the .mllib file, using the corresponding rule."
   (Ocaml_compiler.native_shared_library_link ~tags:["linkall"] "%.cmxa" "%.cmxs");;
 
+let ocamldep () =
 rule "ocaml dependencies ml"
   ~prod:"%.ml.depends"
   ~dep:"%.ml"
@@ -436,7 +437,116 @@ rule "ocaml dependencies ml"
 rule "ocaml dependencies mli"
   ~prod:"%.mli.depends"
   ~dep:"%.mli"
-  (Ocaml_tools.ocamldep_command "%.mli" "%.mli.depends");;
+  (Ocaml_tools.ocamldep_command "%.mli" "%.mli.depends")
+
+
+let codept () =
+  let open Codept in
+  let mdeps = A "-nl-modules" in
+  let fdeps = A "-modules" in
+  let sig_only = A "-sig-only" in
+  let gen_sig = S [ A "-sig"; sig_only ] in
+  let m2l_gen = A "-m2l-sexp" in
+
+  rule "ml → m2l"
+    ~insert:`top
+    ~prod:"%.m2l"
+    ~dep:"%.ml"
+    (codept m2l_gen "%.ml" "%.m2l");
+
+rule "mli → m2li"
+  ~insert:`top
+  ~prod:"%.m2li"
+  ~dep:"%.mli"
+  (codept m2l_gen "%.mli" "%.m2li")
+;
+
+rule "m2l → ml.r.depends"
+  ~insert:`top
+  ~prod:"%.ml.r.depends"
+  ~dep:"%.m2l"
+  ~doc:"Compute approximate dependencies using codept."
+  (codept mdeps "%.ml" "%.ml.r.depends");
+
+rule "m2li → mli.r.depends"
+  ~insert:`top
+  ~prod:"%.mli.r.depends"
+  ~dep:"%.m2li"
+  ~doc:"Compute approximate dependencies using codept."
+  (codept mdeps "%.mli" "%.mli.r.depends");
+
+rule "m2li → sig"
+  ~insert:`top
+  ~prod:"%.sig"
+  ~deps:["%.m2li";"%.sig.depends"]
+  ~doc:"Compute approximate dependencies using codept."
+  (codept_dep gen_sig "%.m2li" "%.sig.depends"
+     "%.sig");
+
+rule "m2l → sig"
+  ~insert:(`after "m2li → sig")
+  ~prod:"%.sig"
+  ~deps:["%.m2l";"%.sig.depends"]
+  ~doc:"Compute approximate dependencies using codept."
+  (codept_dep gen_sig
+     "%.m2l" "%.sig.depends" "%.sig");
+
+rule "m2li → r.sig.depends"
+  ~insert:`top
+  ~prod:"%.r.sig.depends"
+  ~dep:"%.m2li"
+  ~doc:"Compute approximate dependencies using codept."
+  (codept (S [ mdeps; sig_only]) "%.m2li" "%.r.sig.depends");
+
+rule "m2l → r.sig.depends"
+  ~insert:(`after "m2li → r.sig.depends")
+  ~prod:"%.r.sig.depends"
+  ~dep:"%.m2l"
+  ~doc:"Compute approximate dependencies using codept."
+  (codept (S [ mdeps; sig_only]) "%.m2l" "%.r.sig.depends");
+
+
+rule "m2li r.sig.depends → sig.depends"
+  ~insert:`top
+  ~prod:"%.sig.depends"
+  ~deps:["%.m2li"; "%.r.sig.depends"]
+  ~doc:"Compute approximate dependencies using codept."
+  (codept_dep (S [ mdeps; sig_only])
+                 "%.m2li" "%.r.sig.depends" "%.sig.depends")
+;
+
+rule "m2l r.sig.depends → sig.depends"
+  ~insert:(`after "m2li r.sig.depends → sig.depends")
+  ~prod:"%.sig.depends"
+  ~deps:["%.m2l"; "%.r.sig.depends"]
+  ~doc:"Compute approximate dependencies using codept."
+  (codept_dep (S [ mdeps; sig_only])
+     "%.m2l" "%.r.sig.depends" "%.sig.depends")
+;
+
+
+rule "m2l → depends"
+  ~insert:`top
+  ~prod:"%.ml.depends"
+  ~deps:["%.m2l";"%.ml.r.depends"]
+  ~doc:"Compute approximate dependencies using codept."
+  (codept_dep fdeps "%.ml" "%.ml.r.depends" "%.ml.depends")
+;
+
+
+rule "m2li → depends"
+  ~insert: `top
+  ~prod:"%.mli.depends"
+  ~deps:["%.m2li";"%.mli.r.depends"]
+  (codept_dep fdeps "%.mli" "%.m2li" "%.mli.depends")
+
+
+let () =
+  if !Options.use_codept then
+    codept ()
+  else
+    ocamldep ()
+;;
 
 rule "ocamllex"
   ~prod:"%.ml"
