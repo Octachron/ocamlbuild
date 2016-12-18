@@ -75,6 +75,7 @@ PACK_CMO= $(addprefix src/,\
   ocaml_dependencies.cmo \
   ocaml_compiler.cmo \
   ocaml_tools.cmo \
+  codept.cmo \
   ocaml_specific.cmo \
   plugin.cmo \
   exit_codes.cmo \

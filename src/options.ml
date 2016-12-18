@@ -39,6 +39,7 @@ let nostdlib = ref false
 let use_menhir = ref false
 let catch_errors = ref true
 let use_ocamlfind = ref false
+let use_codept = ref false
 let toolchain = ref ""
 
 (* Currently only ocamlfind and menhir is defined as no-core tool,
@@ -232,6 +233,7 @@ let spec = ref (
    "-no-sanitize", Clear sanitize, " Do not generate sanitization script";
    "-nothing-should-be-rebuilt", Set nothing_should_be_rebuilt, " Fail if something needs to be rebuilt";
    "-classic-display", Set Log.classic_display, " Display executed commands the old-fashioned way";
+   "-use-codept", Set use_codept, " Use codept instead of ocamldep";
    "-use-menhir", Set use_menhir, " Use menhir instead of ocamlyacc";
    "-use-jocaml", Unit use_jocaml, " Use jocaml compilers instead of ocaml ones";
    "-use-ocamlfind", Set use_ocamlfind, " Use the 'ocamlfind' wrapper instead of \
