@@ -542,7 +542,7 @@ rule "m2li → depends"
 
 
 let () =
-  if !Options.use_codept then
+  if !Options.use_codept || Configuration.has_tag "use_codept" then
     codept ()
   else
     ocamldep ()
