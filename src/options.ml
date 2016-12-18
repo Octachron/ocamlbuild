@@ -234,6 +234,8 @@ let spec = ref (
    "-nothing-should-be-rebuilt", Set nothing_should_be_rebuilt, " Fail if something needs to be rebuilt";
    "-classic-display", Set Log.classic_display, " Display executed commands the old-fashioned way";
    "-use-codept", Set use_codept, " Use codept instead of ocamldep";
+   "-use-ocamldep", Unit (fun () -> use_codept:=false),
+   " Use ocamldep instead of codept";
    "-use-menhir", Set use_menhir, " Use menhir instead of ocamlyacc";
    "-use-jocaml", Unit use_jocaml, " Use jocaml compilers instead of ocaml ones";
    "-use-ocamlfind", Set use_ocamlfind, " Use the 'ocamlfind' wrapper instead of \
