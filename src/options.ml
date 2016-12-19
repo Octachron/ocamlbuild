@@ -39,7 +39,7 @@ let nostdlib = ref false
 let use_menhir = ref false
 let catch_errors = ref true
 let use_ocamlfind = ref false
-let use_codept = ref false
+let use_codept = ref true
 let toolchain = ref ""
 
 (* Currently only ocamlfind and menhir is defined as no-core tool,
