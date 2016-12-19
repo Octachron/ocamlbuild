@@ -1000,6 +1000,8 @@ flag ["ocaml"; "compile"; "profile"; "native"] (A "-p");;
 
 flag ["ocaml"; "compile"; "no_alias_deps";] (A "-no-alias-deps");;
 flag ["ocaml"; "infer_interface"; "no_alias_deps";] (A "-no-alias-deps");;
+flag ["ocaml"; "ocamldep"; "codept"; "no_alias_deps";] (A "-no-alias-deps");;
+
 
 flag ["ocaml"; "compile"; "strict_formats";] (A "-strict-formats");;
 flag ["ocaml"; "infer_interface"; "strict_formats";] (A "-strict-formats");;
