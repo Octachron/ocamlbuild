@@ -4,9 +4,25 @@ module U = Ocaml_utils
 module T = Tools
 module Outcome = My_std.Outcome
 
+let is_pflag_included root s =
+  let predicate t =
+    match String.split_on_char '(' t with
+    | a :: _ -> a = root
+    | _ -> false in
+  List.exists predicate @@ Tags.elements s
+
 let codept' mode tags =
   let tags' = tags++"ocaml"++"ocamldep" ++ "codept" in
-    S [ A "codept"; T tags'; U.ocaml_ppflags (tags++"pp:dep"); mode]
+  let tags' = let open Tags in
+    (* when computing dependencies for packed modules, cyclic alias
+       references within the packed modules becomes problematic when
+       packing. To avoid creating packed cmo/cmx with invalid elements,
+       we disallow the simultaneous use of no_alias_deps and for-pack(…). *)
+    if is_pflag_included "for-pack" tags' then
+      tags' -- "no_alias_deps"
+    else
+      tags' in
+  S [ A "codept"; T tags'; U.ocaml_ppflags (tags++"pp:dep"); mode]
 
 let codept mode arg out env _build =
   let arg = env arg and out = env out in
