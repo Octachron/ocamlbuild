@@ -538,7 +538,7 @@ rule "m2li → depends"
   ~insert: `top
   ~prod:"%.mli.depends"
   ~deps:["%.m2li";"%.mli.r.depends"]
-  (codept_dep fdeps "%.mli" "%.m2li" "%.mli.depends")
+  (codept_dep fdeps "%.mli" "%.mli.r.depends" "%.mli.depends")
 
 
 let () =
