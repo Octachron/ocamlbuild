@@ -480,7 +480,7 @@ rule "m2li → sig"
   ~prod:"%.sig"
   ~deps:["%.m2li";"%.sig.depends"]
   ~doc:"Compute approximate dependencies using codept."
-  (codept_dep gen_sig "%.m2li" "%.sig.depends"
+  (codept_dep ~approx:false gen_sig "%.m2li" "%.sig.depends"
      "%.sig");
 
 rule "m2l → sig"
@@ -488,7 +488,7 @@ rule "m2l → sig"
   ~prod:"%.sig"
   ~deps:["%.m2l";"%.sig.depends"]
   ~doc:"Compute approximate dependencies using codept."
-  (codept_dep gen_sig
+  (codept_dep ~approx:false gen_sig
      "%.m2l" "%.sig.depends" "%.sig");
 
 rule "m2li → r.sig.depends"
@@ -529,7 +529,7 @@ rule "m2l → depends"
   ~insert:`top
   ~prod:"%.ml.depends"
   ~deps:["%.m2l";"%.ml.r.depends"]
-  ~doc:"Compute approximate dependencies using codept."
+  ~doc:"Compute exact dependencies using codept."
   (codept_dep fdeps "%.ml" "%.ml.r.depends" "%.ml.depends")
 ;
 
@@ -538,6 +538,7 @@ rule "m2li → depends"
   ~insert: `top
   ~prod:"%.mli.depends"
   ~deps:["%.m2li";"%.mli.r.depends"]
+  ~doc:"Compute exact dependencies using codept."
   (codept_dep fdeps "%.mli" "%.mli.r.depends" "%.mli.depends")
 
 
