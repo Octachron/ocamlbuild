@@ -447,99 +447,80 @@ let codept () =
   let sig_only = A "-sig-only" in
   let gen_sig = S [ A "-sig"; sig_only ] in
   let m2l_gen = A "-m2l-sexp" in
-
   rule "ml → m2l"
     ~insert:`top
     ~prod:"%.m2l"
     ~dep:"%.ml"
     (codept m2l_gen "%.ml" "%.m2l");
 
-rule "mli → m2li"
-  ~insert:`top
-  ~prod:"%.m2li"
-  ~dep:"%.mli"
-  (codept m2l_gen "%.mli" "%.m2li")
-;
+  rule "mli → m2li"
+    ~insert:`top
+    ~prod:"%.m2li"
+    ~dep:"%.mli"
+    (codept m2l_gen "%.mli" "%.m2li")
+  ;
 
-rule "m2l → ml.r.depends"
-  ~insert:`top
-  ~prod:"%.ml.r.depends"
-  ~dep:"%.m2l"
-  ~doc:"Compute approximate dependencies using codept."
-  (codept mdeps "%.ml" "%.ml.r.depends");
+  rule "m2l → ml.approx.depends"
+    ~insert:`top
+    ~prod:"%.ml.approx.depends"
+    ~dep:"%.m2l"
+    ~doc:"Compute approximate dependencies using codept."
+    (codept mdeps "%.ml" "%.ml.approx.depends");
 
-rule "m2li → mli.r.depends"
-  ~insert:`top
-  ~prod:"%.mli.r.depends"
-  ~dep:"%.m2li"
-  ~doc:"Compute approximate dependencies using codept."
-  (codept mdeps "%.mli" "%.mli.r.depends");
+  rule "m2li → mli.approx.depends"
+    ~insert:`top
+    ~prod:"%.mli.approx.depends"
+    ~dep:"%.m2li"
+    ~doc:"Compute approximate dependencies using codept."
+    (codept mdeps "%.mli" "%.mli.approx.depends");
 
-rule "m2li → sig"
-  ~insert:`top
-  ~prod:"%.sig"
-  ~deps:["%.m2li";"%.sig.depends"]
-  ~doc:"Compute approximate dependencies using codept."
-  (codept_dep ~approx:false gen_sig "%.m2li" "%.sig.depends"
-     "%.sig");
+  rule "m2li → sig depends"
+    ~insert:`top
+    ~prods:["%.sig";"%.sig.depends"]
+    ~deps:["%.m2li"; "%.r.sig.depends"]
+    ~doc:"Compute approximate dependencies using codept."
+    (codept_dep ~approx:false sig_only "%.m2li" "%.r.sig.depends"
+       [gen_sig, "%.sig"; fdeps, "%.sig.depends"]);
 
-rule "m2l → sig"
-  ~insert:(`after "m2li → sig")
-  ~prod:"%.sig"
-  ~deps:["%.m2l";"%.sig.depends"]
-  ~doc:"Compute approximate dependencies using codept."
-  (codept_dep ~approx:false gen_sig
-     "%.m2l" "%.sig.depends" "%.sig");
+  rule "m2l → sig depends"
+    ~insert:(`after "m2li → sig depends")
+    ~prods:["%.sig"; "%.sig.depends"]
+    ~deps:["%.m2l"; "%.r.sig.depends"]
+    ~doc:"Compute approximate dependencies using codept."
+    (codept_dep ~approx:false sig_only
+       "%.m2l" "%.r.sig.depends" [gen_sig, "%.sig"; fdeps, "%.sig.depends"]);
 
-rule "m2li → r.sig.depends"
-  ~insert:`top
-  ~prod:"%.r.sig.depends"
-  ~dep:"%.m2li"
-  ~doc:"Compute approximate dependencies using codept."
-  (codept (S [ mdeps; sig_only]) "%.m2li" "%.r.sig.depends");
+  rule "m2li → r.sig.depends"
+    ~insert:`top
+    ~prod:"%.r.sig.depends"
+    ~dep:"%.m2li"
+    ~doc:"Compute approximate dependencies using codept."
+    (codept (S [ mdeps; sig_only]) "%.m2li" "%.r.sig.depends");
 
-rule "m2l → r.sig.depends"
-  ~insert:(`after "m2li → r.sig.depends")
-  ~prod:"%.r.sig.depends"
-  ~dep:"%.m2l"
-  ~doc:"Compute approximate dependencies using codept."
-  (codept (S [ mdeps; sig_only]) "%.m2l" "%.r.sig.depends");
-
-
-rule "m2li r.sig.depends → sig.depends"
-  ~insert:`top
-  ~prod:"%.sig.depends"
-  ~deps:["%.m2li"; "%.r.sig.depends"]
-  ~doc:"Compute approximate dependencies using codept."
-  (codept_dep (S [ mdeps; sig_only])
-                 "%.m2li" "%.r.sig.depends" "%.sig.depends")
-;
-
-rule "m2l r.sig.depends → sig.depends"
-  ~insert:(`after "m2li r.sig.depends → sig.depends")
-  ~prod:"%.sig.depends"
-  ~deps:["%.m2l"; "%.r.sig.depends"]
-  ~doc:"Compute approximate dependencies using codept."
-  (codept_dep (S [ mdeps; sig_only])
-     "%.m2l" "%.r.sig.depends" "%.sig.depends")
-;
+  rule "m2l → r.sig.depends"
+    ~insert:(`after "m2li → r.sig.depends")
+    ~prod:"%.r.sig.depends"
+    ~dep:"%.m2l"
+    ~doc:"Compute approximate dependencies using codept."
+    (codept (S [ mdeps; sig_only]) "%.m2l" "%.r.sig.depends");
 
 
-rule "m2l → depends"
-  ~insert:`top
-  ~prod:"%.ml.depends"
-  ~deps:["%.m2l";"%.ml.r.depends"]
-  ~doc:"Compute exact dependencies using codept."
-  (codept_dep fdeps "%.ml" "%.ml.r.depends" "%.ml.depends")
-;
+  rule "m2l → ml.depends"
+    ~insert:`top
+    ~prods:["%.ml.depends";"%.ml.maps.depends"]
+    ~deps:["%.m2l";"%.ml.approx.depends"]
+    ~doc:"Compute approximate dependencies using codept."
+    (codept_dep N "%.ml" "%.ml.approx.depends"
+       [fdeps, "%.ml.depends"] )
+  ;
 
 
-rule "m2li → depends"
-  ~insert: `top
-  ~prod:"%.mli.depends"
-  ~deps:["%.m2li";"%.mli.r.depends"]
-  ~doc:"Compute exact dependencies using codept."
-  (codept_dep fdeps "%.mli" "%.mli.r.depends" "%.mli.depends")
+  rule "m2li → mli.depends"
+    ~insert: `top
+    ~prods:["%.mli.depends";"%.mli.maps.depends"]
+    ~deps:["%.m2li";"%.mli.approx.depends"]
+    (codept_dep N "%.mli" "%.mli.approx.depends"
+       [fdeps, "%.mli.depends"] )
 
 
 let () =

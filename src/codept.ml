@@ -4,6 +4,8 @@ module U = Ocaml_utils
 module T = Tools
 module Outcome = My_std.Outcome
 
+let o = A "-o"
+
 let is_pflag_included root s =
   let predicate t =
     match String.split_on_char '(' t with
@@ -31,8 +33,8 @@ let codept ?(approx=true) mode arg out env _build =
   Cmd(S[codept' ~approx mode tags; P arg; Sh ">"; Px out])
 
 
-let codept_dep ?(approx=false) mode arg deps out env build =
-  let arg = env arg and out = env out and deps = env deps in
+let codept_dep ?(approx=false) mode arg deps outs env build =
+  let arg = env arg and deps = env deps in
   let tags = T.tags_of_pathname arg in
   let approx_deps = U.string_list_of_file deps in
   (** eliminate self-dependency from approximated dependencies *)
@@ -47,5 +49,5 @@ let codept_dep ?(approx=false) mode arg deps out env build =
     List.map Outcome.good
     @@ List.filter Outcome.(function Good _ -> true | Bad _ -> false )
     @@ outsigs in
-  Cmd( S[ codept' ~approx mode tags; P arg; Command.atomize_paths sigs;
-          Sh ">"; Px out])
+  let outs = List.map (fun (mode, name) -> S [o; Px (env name); mode ] ) outs in
+  Cmd( S[ codept' ~approx mode tags; P arg; Command.atomize_paths sigs;  S outs])
