@@ -201,7 +201,7 @@ clean::
 	rm -f man/ocamlbuild.options.1 man/ocamlbuild.1
 
 man/options_man.byte: ocamlbuild_pack.cmo
-	$(OCAMLC) ocamlbuild_pack.cmo -I src man/options_man.ml -o man/options_man.byte
+	$(OCAMLC) $(LINKFLAGS) unix.cma ocamlbuild_pack.cmo man/options_man.ml -o man/options_man.byte
 
 clean::
 	rm -f man/options_man.cm*
