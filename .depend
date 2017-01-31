@@ -1,10 +1,10 @@
 src/bool.cmo : src/bool.cmi
 src/bool.cmx : src/bool.cmi
 src/bool.cmi :
-src/codept.cmo : src/tools.cmi src/tags.cmi src/options.cmi \
-    src/ocaml_utils.cmi src/my_std.cmi src/command.cmi
-src/codept.cmx : src/tools.cmx src/tags.cmx src/options.cmx \
-    src/ocaml_utils.cmx src/my_std.cmx src/command.cmx
+src/codept.cmo : src/tools.cmi src/tags.cmi src/pathname.cmi \
+    src/ocaml_utils.cmi src/my_std.cmi src/configuration.cmi src/command.cmi
+src/codept.cmx : src/tools.cmx src/tags.cmx src/pathname.cmx \
+    src/ocaml_utils.cmx src/my_std.cmx src/configuration.cmx src/command.cmx
 src/command.cmo : src/tags.cmi src/shell.cmi src/param_tags.cmi \
     src/my_unix.cmi src/my_std.cmi src/log.cmi src/lexers.cmi src/const.cmo \
     src/command.cmi
