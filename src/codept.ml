@@ -13,7 +13,7 @@ let is_pflag_included root s =
     | _ -> false in
   List.exists predicate @@ Tags.elements s
 
-let codept' port ?(approx=true) mode tags =
+let codept' ?(approx=true) mode tags =
   let tags' = tags++"ocaml"++"ocamldep" ++ "codept" in
   let tags' = let open Tags in
     (* when computing dependencies for packed modules, cyclic alias
@@ -26,19 +26,19 @@ let codept' port ?(approx=true) mode tags =
       tags' in
   let k = if approx then S [ A"-k"; A "-silent-fault-level"; A "warning" ]
     else S [] in
-  S [  A "codept-client"; A "-port"; A port; k; T tags';
+  S [  A "codept"; k; T tags';
        U.ocaml_ppflags (tags++"pp:dep"); mode]
 
-let codept port ?(approx=true) arg outs env _build =
+let codept ?(approx=true) arg outs env _build =
   let arg = env arg in
   let tags = T.tags_of_pathname arg in
   let out = env @@ snd @@ List.hd outs in
   Configuration.tag_file out (Tags.elements tags);
   let outs = List.map (fun (mode, name) -> S [o; Px (env name); mode ] ) outs in
-  Cmd(S[codept' port ~approx N tags; P arg; S outs])
+  Cmd(S[codept' ~approx N tags; P arg; S outs])
 
 
-let codept_dep port ?(approx=false) arg deps outs env build =
+let codept_dep ?(approx=false) arg deps outs env build =
   let arg = env arg and deps = env deps in
   let tags = T.tags_of_pathname arg in
   let approx_deps = U.string_list_of_file deps in
@@ -55,4 +55,4 @@ let codept_dep port ?(approx=false) arg deps outs env build =
     @@ List.filter Outcome.(function Good _ -> true | Bad _ -> false )
     @@ outsigs in
   let outs = List.map (fun (mode, name) -> S [o; Px (env name); mode ] ) outs in
-  Cmd( S[ codept' port ~approx N tags; P arg; Command.atomize_paths sigs;  S outs])
+  Cmd( S[ codept' ~approx N tags; P arg; Command.atomize_paths sigs;  S outs])

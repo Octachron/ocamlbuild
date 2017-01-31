@@ -446,7 +446,7 @@ let codept () =
   let fdeps = A "-modules" in
   let gen_sig =  A "-sig" in
   let m2l_gen = A "-m2l-sexp" in
-
+(*
   let port =
     let socket = Unix.(socket PF_INET SOCK_STREAM 0) in
     let addr = Unix.( ADDR_INET (inet_addr_loopback, 0) ) in
@@ -465,7 +465,7 @@ let codept () =
     string_of_int n in
 
   let codept, codept_dep = codept port, codept_dep port in
-
+*)
  rule "ml → m2l + approx.depends"
     ~insert:`top
     ~prods:["%.m2l";"%.ml.approx.depends"]
