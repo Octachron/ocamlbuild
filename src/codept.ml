@@ -24,7 +24,7 @@ let codept' ?(approx=true) mode tags =
       tags' -- "no_alias_deps"
     else
       tags' in
-  let k = if approx then S [ A"-k"; A "-silent-fault-level"; A "warning" ]
+  let k = if approx then S [ A"-k"; A "-verbosity"; A "error" ]
     else S [] in
   S [  A "codept"; k; T tags';
        U.ocaml_ppflags (tags++"pp:dep"); mode]
